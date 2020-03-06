@@ -1,9 +1,6 @@
 package SelenCodes;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.UnhandledAlertException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -17,13 +14,17 @@ import java.util.concurrent.TimeUnit;
 
 public class loginsample {
     //download chrome driver and give its path in set property
+    static WebDriver driver;
+
     public static void main(String[] args) throws InterruptedException {
+
+        int h = 1;
         System.setProperty("webdriver.chrome.driver",
                 ("C:\\Users\\vkulal\\Downloads\\Software\\driver\\chromedriver.exe"));
 
         // OPen browser and set default timeout values
 
-        WebDriver driver = new ChromeDriver();
+        driver = new ChromeDriver();
 
         driver.manage().window().maximize();
 
@@ -35,7 +36,7 @@ public class loginsample {
         //UAT URL
         driver.get("http://101.99.81.153:8080/cms-web/auth/login");
 
-        WebDriverWait wait = new WebDriverWait(driver, 30);
+        WebDriverWait wait = new WebDriverWait(driver, 40);
 
         // Feed credentials and login
 
@@ -87,20 +88,32 @@ public class loginsample {
 
         // Click on Details link of the first record
 
-//Click on first active details
+//Click on active details in sequence
 //Popup already amended need to be handled
-//Click on all the details should be handled currently only first details has been automated
+//Click on all the details should be handled currently all details in a page has been automated
 //File stream need to be introduced to feed the data into the file
 //Design of Page Object model need be to introduced to overcome and handle staleelement and other exception
 
 
         List contractno = driver.findElements(By.xpath("//td[11]//a[1]"));
 
-        System.out.println(contractno.size());
-        for (int h = 1; h <= 1; h++) {
+        System.out.println("Number of Contracts in a page" + contractno.size());
+        while (h <= contractno.size()) {
 
             wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//tr[" + h + "]//td[11]//a[1]")));
-            driver.findElement(By.xpath("//tr[" + h + "]//td[11]//a[1]")).click();
+
+            WebElement details = driver.findElement(By.xpath("//tr[" + h + "]//td[11]//a[1]"));
+            Actions actions3 = new Actions(driver);
+
+
+            actions3.doubleClick(details).perform();
+
+            actions.build().perform();
+
+            // Sleep for a while
+
+            Thread.sleep(3000);
+
             String Parent = driver.getWindowHandle();
             Set<String> child = driver.getWindowHandles();
             Iterator it = child.iterator();
@@ -109,13 +122,11 @@ public class loginsample {
             }
 
             Thread.sleep(3000);
-
+            driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
             // Switch to Shift tab
             wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[contains(text(),'Shift')]")));
             driver.findElement(By.xpath("//a[contains(text(),'Shift')]")).click();
-
             // Click on Amendment button
-
             try {
                 driver.findElement(By.id("btnAmend")).click();
             } catch (UnhandledAlertException e) {
@@ -139,66 +150,76 @@ public class loginsample {
             List<WebElement> rowCount = driver.findElements(By.xpath("//table[@id='acsTableShift']//tbody//tr"));
 
             System.out.println("Row count: " + rowCount.size());
+            driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+int attempts=0;
+while(attempts < 2) {
 
-            for (int i = 1; i < rowCount.size(); i++) {
+    try {
+        for (int i = 1; i < rowCount.size(); i++) {
 
-                wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//table[@id='acsTableShift']//tbody//tr[" + i + "]//td")));
-                List<WebElement> columnCount = driver.findElements(By.xpath("//table[@id='acsTableShift']//tbody//tr[" + i + "]//td"));
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//table[@id='acsTableShift']//tbody//tr[" + i + "]//td")));
+            List<WebElement> columnCount = driver.findElements(By.xpath("//table[@id='acsTableShift']//tbody//tr[" + i + "]//td"));
 
 //       System.out.println("Column count: " + columnCount.size());
 
-                for (int j = 1; j < columnCount.size(); j++) {
+            for (int j = 1; j < columnCount.size(); j++) {
 
-                    wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//select[@id='acsShiftJcSel-" + j + "']")));
-                    WebElement jobClassElement = driver.findElement(By.xpath("//select[@id='acsShiftJcSel-" + j + "']"));
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//select[@id='acsShiftJcSel-" + j + "']")));
+                WebElement jobClassElement = driver.findElement(By.xpath("//select[@id='acsShiftJcSel-" + j + "']"));
 
-                    Select JobClass = new Select(jobClassElement);
+                Select JobClass = new Select(jobClassElement);
 
-                    if (JobClass.getFirstSelectedOption() == null) {
-                        JobClass.selectByIndex(1);
-                        break;
-                    }
-                    System.out.println("Job Classification: " + JobClass.getFirstSelectedOption().getText());
-
-                    wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//select[@id='acsShiftSel-" + j + "']")));
-                    WebElement shiftElement = driver.findElement(By.xpath("//select[@id='acsShiftSel-" + j + "']"));
-
-                    Select shift = new Select(shiftElement);
-                    if (shift.getFirstSelectedOption() == null) {
-                        shift.selectByIndex(1);
-                        break;
-                    }
-
-                    System.out.println("JobShift: " + shift.getFirstSelectedOption().getText());
-
-
-                    wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@id='acsStartTime-" + j + "']")));
-                    WebElement startTimeElement = driver.findElement(By.xpath("//input[@id='acsStartTime-" + j + "']"));
-
-                    System.out.println("Start Time: " + startTimeElement.getAttribute("value"));
-                    wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@id='acsEndTime-" + j + "']")));
-                    WebElement endTimeElement = driver.findElement(By.xpath("//input[@id='acsEndTime-" + j + "']"));
-
-                    System.out.println("End Time: " + endTimeElement.getAttribute("value"));
-                    wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@id='acsTotWrkHrs-" + j + "']")));
-                    WebElement workHoursElement = driver.findElement(By.xpath("//input[@id='acsTotWrkHrs-" + j + "']"));
-
-                    System.out.println("Work Hours: " + workHoursElement.getAttribute("value"));
-
-                    WebElement ppElement = driver.findElement(By.xpath("//select[@id='acsShiftOpPerSel-" + j + "']"));
-
-                    Select pp = new Select(ppElement);
-
-                    System.out.println("Operational Period: " + pp.getFirstSelectedOption().getText());
+                if (JobClass.getFirstSelectedOption().getText() == null) {
+                    JobClass.selectByIndex(1);
+                    break;
                 }
-                Thread.sleep(3000);
+                System.out.println("Job Classification: " + JobClass.getFirstSelectedOption().getText());
 
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//select[@id='acsShiftSel-" + j + "']")));
+                WebElement shiftElement = driver.findElement(By.xpath("//select[@id='acsShiftSel-" + j + "']"));
+
+                Select shift = new Select(shiftElement);
+                if (shift.getFirstSelectedOption().getText() == null) {
+                    shift.selectByIndex(1);
+                    break;
+                }
+
+                System.out.println("JobShift: " + shift.getFirstSelectedOption().getText());
+
+
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@id='acsStartTime-" + j + "']")));
+                WebElement startTimeElement = driver.findElement(By.xpath("//input[@id='acsStartTime-" + j + "']"));
+
+                System.out.println("Start Time: " + startTimeElement.getAttribute("value"));
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@id='acsEndTime-" + j + "']")));
+                WebElement endTimeElement = driver.findElement(By.xpath("//input[@id='acsEndTime-" + j + "']"));
+
+                System.out.println("End Time: " + endTimeElement.getAttribute("value"));
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@id='acsTotWrkHrs-" + j + "']")));
+                WebElement workHoursElement = driver.findElement(By.xpath("//input[@id='acsTotWrkHrs-" + j + "']"));
+
+                System.out.println("Work Hours: " + workHoursElement.getAttribute("value"));
+
+                WebElement ppElement = driver.findElement(By.xpath("//select[@id='acsShiftOpPerSel-" + j + "']"));
+
+                Select pp = new Select(ppElement);
+
+                System.out.println("Operational Period: " + pp.getFirstSelectedOption().getText());
             }
+            Thread.sleep(3000);
+
+        }
+
+    } catch (StaleElementReferenceException ee) {
+        attempts++;
+    }
+    catch (NoSuchElementException ss) {
+        attempts++;
+    }
+}
             try {
 
                 wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//span[contains(text(),'×')]")));
-                //wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//button[@id='btnCancel']")));
-                //WebElement cancel = driver.findElement(By.xpath("//button[@id='btnCancel']"));
                 WebElement cancel = driver.findElement(By.xpath("//span[contains(text(),'×')]"));
                 cancel.click();
             } catch (UnhandledAlertException e) {
@@ -208,9 +229,13 @@ public class loginsample {
 
             System.out.println(driver.getCurrentUrl());
             driver.switchTo().window(Parent);
+            driver.manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
+            driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+
         }
         driver.close();
         driver.quit();
+        h++;
     }
 
 }
